@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ manga[1] }} - Chi tiết</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --background: #0f172a;
+            --card-bg: #1e293b;
+            --nav-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            font-family: 'Nunito', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .nav {
+            background-color: var(--nav-bg);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav .brand {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .brand-icon {
+            font-size: 1.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .nav a:hover {
+            color: var(--primary);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .content {
+            flex: 1;
+            padding: 2rem 0;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 800;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .manga-detail-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .detail {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            display: flex;
+            gap: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .detail .cover {
+            flex: 0 0 250px;
+        }
+
+        .detail .cover img {
+            width: 100%;
+            height: auto;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .detail .cover img:hover {
+            transform: scale(1.02);
+        }
+
+        .detail .info {
+            flex: 1;
+        }
+
+        .info h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .info-item {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: baseline;
+        }
+
+        .info-label {
+            font-weight: 700;
+            min-width: 100px;
+            color: var(--text-muted);
+        }
+
+        .info-value {
+            flex: 1;
+        }
+
+        .filter-link {
+            color: var(--primary);
+            cursor: pointer;
+            transition: color 0.2s ease;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .filter-link:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        .genre-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .description {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        .action-buttons {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            font-family: 'Nunito', Arial, sans-serif;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .chapter-list-container {
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .chapter-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .chapter-list-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .chapter-count {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .chapter-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .chapter-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chapter-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .chapter-list::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        .chapter-item {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .chapter-item:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+            transform: translateX(5px);
+        }
+
+        .chapter-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .chapter-link:hover {
+            color: var(--primary);
+        }
+
+        .chapter-number {
+            font-weight: 700;
+        }
+
+        .chapter-title {
+            color: var(--text-muted);
+        }
+
+        .footer {
+            background-color: var(--nav-bg);
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+        }
+
+        .footer p {
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background-color: var(--nav-bg);
+                flex-direction: column;
+                padding: 1rem;
+                gap: 1rem;
+                transform: translateY(-100%);
+                opacity: 0;
+                transition: all 0.3s ease;
+                z-index: 99;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .nav-links.active {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            .detail {
+                flex-direction: column;
+                padding: 1.5rem;
+            }
+
+            .detail .cover {
+                flex: 0 0 auto;
+                margin: 0 auto;
+                max-width: 200px;
+            }
+
+            .info-item {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .info-label {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="container nav-container">
+            <a href="/" class="brand">
+                <span class="brand-icon">📚</span>
+                MangaZex
+            </a>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+            <div class="nav-links" id="navLinks">
+                {% if session.get('user_id') %}
+                    <a href="/profile">Hồ sơ</a>
+                    <a href="/logout">Đăng xuất</a>
+                {% else %}
+                    <a href="/login">Đăng nhập</a>
+                    <a href="/register">Đăng ký</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="content">
+        <div class="container manga-detail-container">
+            <h1 class="page-title">{{ manga[1] }}</h1>
+            
+            <div class="detail">
+                <div class="cover">
+                    <img src="{{ manga[2] if manga[2] else 'https://via.placeholder.com/300x450?text=No+Image' }}" 
+                         alt="{{ manga[1] }}" 
+                         referrerpolicy="no-referrer">
+                </div>
+                <div class="info">
+                    <div class="info-item">
+                        <span class="info-label">Tác giả:</span>
+                        <div class="info-value">
+                            <span class="filter-link" onclick="window.location.href='/filter/author/{{ manga[3]|urlencode }}'">
+                                {{ manga[3] }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <span class="info-label">Thể loại:</span>
+                        <div class="info-value genre-list">
+                            {% for genre in manga[4].split(', ') %}
+                                <span class="filter-link" onclick="window.location.href='/filter/genre/{{ genre|urlencode }}'">
+                                    {{ genre }}
+                                </span>
+                                {% if not loop.last %}<span class="genre-separator">,</span>{% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <span class="info-label">Trạng thái:</span>
+                        <div class="info-value">{{ manga[5] }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <span class="info-label">Ngày tạo:</span>
+                        <div class="info-value">{{ manga[6] }}</div>
+                    </div>
+                    
+                    <div class="description">
+                        <p>{{ manga[1] }} (Chưa có mô tả chi tiết)</p>
+                    </div>
+                    
+                    {% if session.get('user_id') %}
+                        <div class="action-buttons">
+                            {% if is_favorited %}
+                                <form method="POST" action="/unfavorite/{{ manga[0] }}">
+                                    <button type="submit" class="btn btn-outline">Bỏ thích</button>
+                                </form>
+                            {% else %}
+                                <form method="POST" action="/favorite/{{ manga[0] }}">
+                                    <button type="submit" class="btn btn-primary">Thích</button>
+                                </form>
+                            {% endif %}
+                            
+                            {% if chapters|length > 0 %}
+                                <a href="/read/{{ manga[0] }}/{{ chapters[0][0] }}" class="btn btn-primary">
+                                    Đọc ngay
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="chapter-list-container">
+                <div class="chapter-list-header">
+                    <h3 class="chapter-list-title">Danh sách chương</h3>
+                    <span class="chapter-count">{{ chapters|length }} chương</span>
+                </div>
+                
+                <div class="chapter-list">
+                    {% for chapter in chapters %}
+                        <div class="chapter-item">
+                            <a href="/read/{{ manga[0] }}/{{ chapter[0] }}" class="chapter-link">
+                                <span class="chapter-number">Chapter {{ loop.index }}</span>
+                                {% if chapter[2] %}
+                                    <span class="chapter-title">{{ chapter[2] }}</span>
+                                {% endif %}
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2025 MangaZex. Tất cả các quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookDek - Book Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Book Details: {{ book[1] }}</h1>
+    <p><strong>Author:</strong> {{ book[2] }}</p>
+    <p><strong>Publisher:</strong> {{ book[3] }}</p>
+    <p><strong>Published Date:</strong> {{ book[4] }}</p>
+    <p><strong>Genres:</strong> {{ book[5] }}</p>
+    <p><strong>Page Count:</strong> {{ book[7] }}</p>
+    <h2>Chapters</h2>
+    <ul>{% for chapter in chapters %}
+        <li>
+            <strong>Chapter {{ chapter[1] }}: {{ chapter[2] }}</strong><br>
+            {{ chapter[3] }}
+        </li>
+        {% endfor %}
+    </ul>
+    <a href="/">Back to Book List</a>
+</body>
+</html>

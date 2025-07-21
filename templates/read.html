@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đọc truyện - MangaZex</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --background: #0f172a;
+            --card-bg: #1e293b;
+            --nav-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --reader-bg: #0a0f1a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--reader-bg);
+            color: var(--text);
+            font-family: 'Nunito', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            line-height: 1.6;
+            transition: background-color 0.3s ease;
+        }
+
+        body.light-mode {
+            --reader-bg: #f8fafc;
+            --nav-bg: #f1f5f9;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        .reader-header {
+            background-color: var(--nav-bg);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease;
+        }
+
+        .reader-header.hidden {
+            transform: translateY(-100%);
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .back-button:hover {
+            color: var(--primary);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .reader-settings-button {
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .reader-settings-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .reader-settings {
+            position: fixed;
+            top: 4rem;
+            right: 1rem;
+            background-color: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            z-index: 101;
+            width: 300px;
+            transform: translateY(-1rem);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .reader-settings.active {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .settings-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .settings-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .settings-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .settings-options {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .settings-option {
+            flex: 1;
+            padding: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            color: var(--text);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .settings-option.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .settings-option:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .reader-content {
+            flex: 1;
+            padding: 1rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .chapter-navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .chapter-select-container {
+            background-color: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            min-width: 250px;
+        }
+
+        .side-nav-button {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 3rem;
+            height: 5rem;
+            background-color: var(--card-bg);
+            border-radius: 0.5rem;
+            color: var(--text);
+            text-decoration: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.2s ease;
+            opacity: 0.7;
+        }
+
+        .side-nav-button:hover:not(.disabled) {
+            opacity: 1;
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .side-nav-button.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .side-nav-button.prev {
+            left: 0.5rem;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .side-nav-button.next {
+            right: 0.5rem;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .side-nav-icon {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .chapter-select {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 0.5rem 2rem 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            width: 100%;
+            font-family: 'Nunito', Arial, sans-serif;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236366f1'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1.5em 1.5em;
+            transition: all 0.2s ease;
+        }
+
+        .chapter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+        }
+
+        .manga-reader {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .manga-page {
+            width: 100%;
+            max-width: 900px;
+            height: auto;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease;
+        }
+
+        .manga-page img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .manga-reader.fit-width .manga-page {
+            max-width: 100%;
+        }
+
+        .manga-reader.fit-height .manga-page {
+            max-height: calc(100vh - 200px);
+            width: auto;
+        }
+
+        .manga-reader.horizontal {
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .manga-reader.horizontal .manga-page {
+            max-width: 45%;
+        }
+
+        .reader-footer {
+            background-color: var(--nav-bg);
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .reader-footer p {
+            font-size: 0.9rem;
+        }
+
+        .keyboard-shortcuts {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .keyboard-shortcuts span {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 0.25rem;
+            margin: 0 0.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .side-nav-button {
+                width: 2.5rem;
+                height: 4rem;
+            }
+
+            .side-nav-button.prev {
+                left: 0;
+            }
+
+            .side-nav-button.next {
+                right: 0;
+            }
+
+            .chapter-select-container {
+                width: 70%;
+            }
+
+            .manga-reader.horizontal .manga-page {
+                max-width: 100%;
+            }
+
+            .reader-settings {
+                width: 90%;
+                right: 5%;
+                left: 5%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="reader-header" id="readerHeader">
+        <div class="container header-container">
+            <div class="header-left">
+                <a href="/manga/{{ manga_id }}" class="back-button">
+                    ← Quay lại
+                </a>
+            </div>
+            <div class="header-right">
+                <button class="reader-settings-button" id="settingsButton">
+                    ⚙️
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="reader-settings" id="readerSettings">
+        <h3 class="settings-title">Tùy chỉnh đọc</h3>
+        
+        <div class="settings-group">
+            <label class="settings-label">Chế độ đọc</label>
+            <div class="settings-options">
+                <div class="settings-option active" data-mode="vertical" onclick="changeReadingMode('vertical')">Dọc</div>
+                <div class="settings-option" data-mode="horizontal" onclick="changeReadingMode('horizontal')">Ngang</div>
+            </div>
+        </div>
+        
+        <div class="settings-group">
+            <label class="settings-label">Kích thước ảnh</label>
+            <div class="settings-options">
+                <div class="settings-option active" data-size="fit-width" onclick="changeImageSize('fit-width')">Vừa chiều rộng</div>
+                <div class="settings-option" data-size="fit-height" onclick="changeImageSize('fit-height')">Vừa chiều cao</div>
+            </div>
+        </div>
+        
+        <div class="settings-group">
+            <label class="settings-label">Chế độ màu</label>
+            <div class="settings-options">
+                <div class="settings-option active" data-theme="dark" onclick="changeTheme('dark')">Tối</div>
+                <div class="settings-option" data-theme="light" onclick="changeTheme('light')">Sáng</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="reader-content">
+        <!-- Nút điều hướng bên trái -->
+        <a href="/read/{{ manga_id }}/{{ prev_chapter }}" class="side-nav-button prev {% if not prev_chapter %}disabled{% endif %}">
+            <span class="side-nav-icon">‹</span>
+        </a>
+        
+        <!-- Nút điều hướng bên phải -->
+        <a href="/read/{{ manga_id }}/{{ next_chapter }}" class="side-nav-button next {% if not next_chapter %}disabled{% endif %}">
+            <span class="side-nav-icon">›</span>
+        </a>
+        
+        <div class="container">
+            <div class="chapter-navigation">
+                <div class="chapter-select-container">
+                    <select class="chapter-select" onchange="window.location.href='/read/{{ manga_id }}/' + this.value">
+                        {% for chap_id, chap_title in chapters_list %}
+                            <option value="{{ chap_id }}" {% if chap_id == chapter_id %}selected{% endif %}>
+                                {{ chap_title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="manga-reader" id="mangaReader">
+                {% for image in images %}
+                    <div class="manga-page">
+                        <img src="{{ image if image else 'https://via.placeholder.com/800x1200?text=Không+có+hình+ảnh' }}" 
+                             alt="Trang {{ loop.index }}" 
+                             loading="lazy"
+                             referrerpolicy="no-referrer">
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="chapter-navigation" style="margin-top: 2rem;">
+                <div class="chapter-select-container">
+                    <select class="chapter-select" onchange="window.location.href='/read/{{ manga_id }}/' + this.value">
+                        {% for chap_id, chap_title in chapters_list %}
+                            <option value="{{ chap_id }}" {% if chap_id == chapter_id %}selected{% endif %}>
+                                {{ chap_title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="reader-footer">
+        <div class="container">
+            <p>© 2025 MangaZex. Tất cả các quyền được bảo lưu.</p>
+            <div class="keyboard-shortcuts">
+                Phím tắt: <span>←</span> Chapter trước, <span>→</span> Chapter sau, <span>H</span> Ẩn/hiện thanh điều hướng
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Toggle reader settings
+        const settingsButton = document.getElementById('settingsButton');
+        const readerSettings = document.getElementById('readerSettings');
+        
+        settingsButton.addEventListener('click', () => {
+            readerSettings.classList.toggle('active');
+        });
+        
+        // Close settings when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!readerSettings.contains(e.target) && e.target !== settingsButton) {
+                readerSettings.classList.remove('active');
+            }
+        });
+        
+        // Toggle header visibility on scroll
+        let lastScrollY = window.scrollY;
+        const readerHeader = document.getElementById('readerHeader');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > lastScrollY) {
+                readerHeader.classList.add('hidden');
+            } else {
+                readerHeader.classList.remove('hidden');
+            }
+            lastScrollY = window.scrollY;
+        });
+        
+        // Reading mode functions
+        const mangaReader = document.getElementById('mangaReader');
+        
+        function changeReadingMode(mode) {
+            // Update UI
+            document.querySelectorAll('[data-mode]').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+            
+            // Apply mode
+            mangaReader.classList.remove('vertical', 'horizontal');
+            mangaReader.classList.add(mode);
+            
+            // Save preference
+            localStorage.setItem('readingMode', mode);
+        }
+        
+        function changeImageSize(size) {
+            // Update UI
+            document.querySelectorAll('[data-size]').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelector(`[data-size="${size}"]`).classList.add('active');
+            
+            // Apply size
+            mangaReader.classList.remove('fit-width', 'fit-height');
+            mangaReader.classList.add(size);
+            
+            // Save preference
+            localStorage.setItem('imageSize', size);
+        }
+        
+        function changeTheme(theme) {
+            // Update UI
+            document.querySelectorAll('[data-theme]').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelector(`[data-theme="${theme}"]`).classList.add('active');
+            
+            // Apply theme
+            if (theme === 'light') {
+                document.body.classList.add('light-mode');
+            } else {
+                document.body.classList.remove('light-mode');
+            }
+            
+            // Save preference
+            localStorage.setItem('theme', theme);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            // Left arrow - previous chapter
+            if (e.key === 'ArrowLeft') {
+                const prevButton = document.querySelector('a.side-nav-button.prev:not(.disabled)');
+                if (prevButton) {
+                    window.location.href = prevButton.getAttribute('href');
+                }
+            }
+            
+            // Right arrow - next chapter
+            if (e.key === 'ArrowRight') {
+                const nextButton = document.querySelector('a.side-nav-button.next:not(.disabled)');
+                if (nextButton) {
+                    window.location.href = nextButton.getAttribute('href');
+                }
+            }
+            
+            // H key - toggle header
+            if (e.key === 'h' || e.key === 'H') {
+                readerHeader.classList.toggle('hidden');
+            }
+        });
+        
+        // Load saved preferences
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedMode = localStorage.getItem('readingMode');
+            const savedSize = localStorage.getItem('imageSize');
+            const savedTheme = localStorage.getItem('theme');
+            
+            if (savedMode) changeReadingMode(savedMode);
+            if (savedSize) changeImageSize(savedSize);
+            if (savedTheme) changeTheme(savedTheme);
+        });
+    </script>
+</body>
+</html>
